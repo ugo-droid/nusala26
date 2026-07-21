@@ -17,6 +17,8 @@ export async function onRequest(context) {
     if (path === "notify" && method === "POST") return authed(request, env, notify);
     if (path === "photos" && method === "GET") return listPhotos(env);
     if (path === "photos" && method === "POST") return uploadPhoto(request, env);
+    if (path === "upload" && method === "POST") return authed(request, env, uploadImage);
+    if (path.startsWith("img/") && method === "GET") return getImage(path.slice(4), env);
     if (path.startsWith("photo/") && method === "GET") return getPhoto(path.slice(6), env);
     if (path.startsWith("photo/") && method === "DELETE") return authed(request, env, () => deletePhoto(path.slice(6), env));
     if (path === "pending" && method === "GET") return authed(request, env, () => listPending(env));
@@ -164,6 +166,34 @@ async function deletePhoto(id, env) {
   await env.NUSALA.delete("photo:" + id);
   await env.NUSALA.delete("pending:" + id);
   return new Response(JSON.stringify({ ok: true }), { headers: JSON_HEADERS });
+}
+
+/* --- Admin images (sponsor logos, update photos) --- */
+// ponytail: same KV-binary trick as the photo wall, separate `img:` prefix so these
+// never show up on the public wall and are never AI-screened (admin uploads them).
+
+async function uploadImage(request, env) {
+  const buf = await request.arrayBuffer();
+  if (buf.byteLength > 4_000_000) return bad("image too large");
+  const b = new Uint8Array(buf);
+  const jpeg = b[0] === 0xff && b[1] === 0xd8;
+  const png = b[0] === 0x89 && b[1] === 0x50;
+  if (b.length < 100 || (!jpeg && !png)) return bad("not a JPEG or PNG");
+  const id = Date.now() + "-" + Math.random().toString(36).slice(2, 8);
+  await env.NUSALA.put("img:" + id, buf, { metadata: { ct: png ? "image/png" : "image/jpeg" } });
+  return new Response(JSON.stringify({ ok: true, url: "/api/img/" + id }), { headers: JSON_HEADERS });
+}
+
+async function getImage(id, env) {
+  if (!/^[\w-]+$/.test(id)) return bad("bad id");
+  const { value, metadata } = await env.NUSALA.getWithMetadata("img:" + id, "arrayBuffer");
+  if (!value) return new Response("not found", { status: 404 });
+  return new Response(value, {
+    headers: {
+      "content-type": (metadata && metadata.ct) || "image/jpeg",
+      "cache-control": "public, max-age=31536000, immutable",
+    },
+  });
 }
 
 /* --- VAPID (ES256 JWT via WebCrypto) --- */

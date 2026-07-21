@@ -155,7 +155,45 @@ function renderInfo() {
       <a class="info-row" href="mailto:${esc(v.email)}">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
         ${esc(v.email)}</a>
-    </div>`;
+    </div>` + renderUpdates() + renderSponsors();
+}
+
+function renderUpdates() {
+  const ups = DATA.updates || [];
+  if (!ups.length) return "";
+  return `<h2 class="section-title">NUSA updates</h2>` +
+    ups.map((u) => `<div class="card">
+      ${u.img ? `<img class="update-img" src="${esc(u.img)}" alt="" loading="lazy" onerror="this.remove()">` : ""}
+      <h3>${esc(u.title)}</h3>
+      ${u.text ? `<div class="note">${esc(u.text)}</div>` : ""}
+      ${u.link ? `<a class="update-link" href="${esc(u.link)}" target="_blank" rel="noopener">Learn more</a>` : ""}
+    </div>`).join("");
+}
+
+const TIERS = ["Presenting sponsor", "Platinum sponsor", "Gold sponsor", "Silver sponsor", "Community partner"];
+
+function renderSponsors() {
+  const sp = DATA.sponsors || [];
+  if (!sp.length) return "";
+  // ponytail: group by tier, known tiers in program order, anything else falls to the end
+  const groups = new Map();
+  for (const s of sp) {
+    const tier = s.tier || "Sponsor";
+    if (!groups.has(tier)) groups.set(tier, []);
+    groups.get(tier).push(s);
+  }
+  const rank = (t) => { const i = TIERS.indexOf(t); return i === -1 ? TIERS.length : i; };
+  const tile = (s) => {
+    const inner = `${s.logo ? `<img src="${esc(s.logo)}" alt="${esc(s.name)}" loading="lazy" onerror="this.remove()">` : ""}<span>${esc(s.name)}</span>`;
+    return s.url
+      ? `<a class="sponsor" href="${esc(s.url)}" target="_blank" rel="noopener">${inner}</a>`
+      : `<div class="sponsor">${inner}</div>`;
+  };
+  return `<h2 class="section-title">Thank you to our sponsors</h2>` +
+    [...groups.entries()]
+      .sort((a, b) => rank(a[0]) - rank(b[0]))
+      .map(([tier, list]) => `<div class="tier-label">${esc(tier)}</div><div class="sponsor-grid">${list.map(tile).join("")}</div>`)
+      .join("");
 }
 
 /* Photo wall */

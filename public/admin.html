@@ -67,6 +67,12 @@ small.hint { color: #8a86a8; display: block; margin-top: 6px; font-size: 0.75rem
     <h2>Speakers</h2>
     <div class="card" id="sp-list"></div>
 
+    <h2>NUSA updates</h2>
+    <div class="card" id="up-list"></div>
+
+    <h2>Sponsors</h2>
+    <div class="card" id="spon-list"></div>
+
     <h2>Photo wall</h2>
     <div class="card">
       <div class="row"><button class="purple" onclick="loadPhotos()">Load photos</button></div>
@@ -117,8 +123,97 @@ async function boot() {
 
 function renderAll() {
   $("#donate").value = DATA.donateUrl || "";
-  renderAnns(); renderChips(); renderEvents(); renderSpeakers();
+  if (!Array.isArray(DATA.updates)) DATA.updates = [];
+  if (!Array.isArray(DATA.sponsors)) DATA.sponsors = [];
+  renderAnns(); renderChips(); renderEvents(); renderSpeakers(); renderUpdates(); renderSponsors();
 }
+
+/* Image upload — used by updates and sponsors */
+// ponytail: one hidden file input reused for every image field, target picked at click time
+async function pickImage(onDone) {
+  const inp = document.createElement("input");
+  inp.type = "file";
+  inp.accept = "image/*";
+  inp.onchange = async () => {
+    const file = inp.files[0];
+    if (!file) return;
+    setStatus("Uploading image…");
+    try {
+      const bmp = await createImageBitmap(file);
+      const scale = Math.min(1, 1000 / Math.max(bmp.width, bmp.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(bmp.width * scale);
+      c.height = Math.round(bmp.height * scale);
+      c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+      const blob = await new Promise(res => c.toBlob(res, "image/jpeg", 0.85));
+      const r = await fetch("/api/upload", {
+        method: "POST",
+        headers: { "content-type": "image/jpeg", "x-admin-key": key() },
+        body: blob,
+      });
+      if (!r.ok) throw new Error();
+      const { url } = await r.json();
+      onDone(url);
+      setStatus("Image uploaded — remember to save");
+    } catch (e) {
+      setStatus("Image upload failed");
+    }
+  };
+  inp.click();
+}
+
+/* NUSA updates */
+function renderUpdates() {
+  $("#up-list").innerHTML = DATA.updates.map((u, i) => `
+    <div class="ev-row">
+      <div class="row">
+        <input value="${esc(u.title || "")}" placeholder="Update title" onchange="uup(${i},'title',this.value)">
+        <button class="danger sm" onclick="delUpdate(${i})">✕</button>
+      </div>
+      <label>Message</label>
+      <textarea onchange="uup(${i},'text',this.value)">${esc(u.text || "")}</textarea>
+      <label>Link (optional)</label>
+      <input value="${esc(u.link || "")}" placeholder="https://…" onchange="uup(${i},'link',this.value)">
+      <label>Photo (optional)</label>
+      <div class="row">
+        ${u.img ? `<img src="${esc(u.img)}" style="max-height:60px;border-radius:6px;flex:0 0 auto;">` : '<small class="hint" style="flex:1;">No photo</small>'}
+        <button class="purple sm" onclick="pickImage(url => { DATA.updates[${i}].img = url; renderUpdates(); })">${u.img ? "Replace" : "Add photo"}</button>
+        ${u.img ? `<button class="danger sm" onclick="DATA.updates[${i}].img=''; renderUpdates()">Remove</button>` : ""}
+      </div>
+    </div>`).join("") +
+    `<div style="margin-top:10px;"><button class="purple" onclick="addUpdate()">+ Add update</button></div>`;
+}
+function uup(i, f, v) { DATA.updates[i][f] = v; }
+function delUpdate(i) { if (confirm("Delete this update?")) { DATA.updates.splice(i, 1); renderUpdates(); } }
+function addUpdate() { DATA.updates.push({ id: Date.now(), title: "", text: "", link: "", img: "" }); renderUpdates(); }
+
+/* Sponsors */
+const TIERS = ["Presenting sponsor", "Platinum sponsor", "Gold sponsor", "Silver sponsor", "Community partner"];
+function renderSponsors() {
+  $("#spon-list").innerHTML = DATA.sponsors.map((s, i) => `
+    <div class="ev-row">
+      <div class="row">
+        <input value="${esc(s.name || "")}" placeholder="Sponsor name" onchange="usn(${i},'name',this.value)">
+        <button class="danger sm" onclick="delSponsor(${i})">✕</button>
+      </div>
+      <label>Tier</label>
+      <select onchange="usn(${i},'tier',this.value)">
+        ${TIERS.map(t => `<option ${s.tier === t ? "selected" : ""}>${t}</option>`).join("")}
+      </select>
+      <label>Website (optional)</label>
+      <input value="${esc(s.url || "")}" placeholder="https://…" onchange="usn(${i},'url',this.value)">
+      <label>Logo</label>
+      <div class="row">
+        ${s.logo ? `<img src="${esc(s.logo)}" style="max-height:60px;border-radius:6px;flex:0 0 auto;">` : '<small class="hint" style="flex:1;">No logo</small>'}
+        <button class="purple sm" onclick="pickImage(url => { DATA.sponsors[${i}].logo = url; renderSponsors(); })">${s.logo ? "Replace" : "Add logo"}</button>
+        ${s.logo ? `<button class="danger sm" onclick="DATA.sponsors[${i}].logo=''; renderSponsors()">Remove</button>` : ""}
+      </div>
+    </div>`).join("") +
+    `<div style="margin-top:10px;"><button class="purple" onclick="addSponsor()">+ Add sponsor</button></div>`;
+}
+function usn(i, f, v) { DATA.sponsors[i][f] = v; }
+function delSponsor(i) { if (confirm("Remove this sponsor?")) { DATA.sponsors.splice(i, 1); renderSponsors(); } }
+function addSponsor() { DATA.sponsors.push({ id: Date.now(), name: "", tier: TIERS[2], url: "", logo: "" }); renderSponsors(); }
 
 function setStatus(t) {
   $("#status").textContent = t;
