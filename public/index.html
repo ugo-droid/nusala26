@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NUSALA 26 — 29th Nnewi USA Convention</title>
+<meta name="description" content="29th Nnewi USA Convention · July 23–26, 2026 · Los Angeles. Schedule, speakers, venue and live updates.">
+<meta name="theme-color" content="#241452">
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<meta property="og:title" content="NUSALA 26 — Nnewi USA Convention">
+<meta property="og:description" content="July 23–26, 2026 · Embassy Suites El Segundo, Los Angeles">
+<meta property="og:image" content="https://nusala26.pages.dev/assets/hero-top.png">
+</head>
+<body>
+
+<div id="banner" role="status"></div>
+
+<!-- HOME -->
+<main id="view-home" class="view active">
+  <header class="hero">
+    <div class="logo-row">
+      <img class="logo" src="assets/logo-nusala.png" alt="NUSALA 26 logo">
+      <img class="logo crest" src="assets/logo-crest.png" alt="Nnewi USA crest">
+    </div>
+    <h1>29th Nnewi USA Convention</h1>
+    <p>July 23–26, 2026 · Embassy Suites El Segundo · Los Angeles</p>
+  </header>
+
+  <div id="install-hint" class="hidden"></div>
+
+  <section>
+    <div id="upnext"></div>
+
+    <div class="btn-grid">
+      <a href="#schedule">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        Schedule
+      </a>
+      <a id="btn-venue" href="#info">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 21s7-5.1 7-11a7 7 0 1 0-14 0c0 5.9 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        Venue
+      </a>
+      <a id="btn-donate" href="#" target="_blank" rel="noopener" class="hidden">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 21C6 16 3 12.6 3 9a4.6 4.6 0 0 1 9-1.5A4.6 4.6 0 0 1 21 9c0 3.6-3 7-9 12z"/></svg>
+        Donate
+      </a>
+      <button id="btn-share">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="6" cy="12" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M8.6 10.7l6.8-3.4M8.6 13.3l6.8 3.4"/></svg>
+        Share
+      </button>
+    </div>
+
+    <h2 class="section-title">Announcements</h2>
+    <div id="announcements"></div>
+
+    <div style="text-align:center; padding: 26px 0 10px;">
+      <button id="btn-notify" class="hidden" style="background:#3b2a75;color:#f6b21b;border:none;border-radius:24px;padding:13px 26px;font-family:inherit;font-size:0.9rem;font-weight:600;cursor:pointer;min-height:48px;">
+        🔔 Get update notifications
+      </button>
+    </div>
+  </section>
+</main>
+
+<!-- SCHEDULE -->
+<main id="view-schedule" class="view">
+  <div class="page-head">
+    <h1>Schedule</h1>
+    <p>All times Pacific · Barcelona Room unless noted</p>
+  </div>
+  <div class="chips" id="day-chips"></div>
+  <section id="day-events" style="padding-top:0;"></section>
+</main>
+
+<!-- SPEAKERS -->
+<main id="view-speakers" class="view">
+  <div class="page-head">
+    <h1>Speakers &amp; guests</h1>
+  </div>
+  <section id="speaker-list"></section>
+</main>
+
+<!-- PHOTOS -->
+<main id="view-photos" class="view">
+  <div class="page-head">
+    <h1>Photo wall</h1>
+    <p>Share your convention moments</p>
+  </div>
+  <section>
+    <label class="snap-btn">
+      📸 Take or choose a photo
+      <input id="photo-input" type="file" accept="image/*" capture="environment" hidden>
+    </label>
+    <input id="photo-name" type="text" placeholder="Your name (optional)" class="name-input" maxlength="40">
+    <div id="photo-status" style="text-align:center;color:#cfc4f0;font-size:0.85rem;min-height:1.4em;padding:6px;"></div>
+    <div id="photo-grid" class="photo-grid"></div>
+  </section>
+</main>
+
+<!-- INFO -->
+<main id="view-info" class="view">
+  <div class="page-head">
+    <h1>Venue &amp; info</h1>
+  </div>
+  <section id="info-body"></section>
+  <p style="text-align:center; color:#9c8dd6; font-size:0.75rem; padding:24px 16px;">
+    NUSALA 26 · Nnewi USA · Empowering the next generation — our legacy, their future
+  </p>
+</main>
+
+<div class="skyline" aria-hidden="true">
+<svg viewBox="0 0 400 96" preserveAspectRatio="xMidYMax slice">
+  <g fill="#170c38">
+    <rect x="14" y="40" width="24" height="56"/><rect x="44" y="26" width="20" height="70"/>
+    <rect x="70" y="48" width="26" height="48"/><rect x="102" y="14" width="24" height="82"/>
+    <rect x="132" y="36" width="18" height="60"/><rect x="156" y="6" width="26" height="90"/>
+    <rect x="188" y="30" width="20" height="66"/><rect x="214" y="44" width="26" height="52"/>
+    <rect x="246" y="20" width="20" height="76"/><rect x="272" y="38" width="24" height="58"/>
+    <rect x="302" y="52" width="20" height="44"/><rect x="328" y="32" width="24" height="64"/>
+    <rect x="358" y="46" width="22" height="50"/>
+  </g>
+  <g fill="#f6b21b" opacity="0.8">
+    <rect x="108" y="22" width="4" height="4"/><rect x="116" y="34" width="4" height="4"/>
+    <rect x="162" y="14" width="4" height="4"/><rect x="171" y="26" width="4" height="4"/>
+    <rect x="250" y="28" width="4" height="4"/><rect x="50" y="34" width="4" height="4"/>
+    <rect x="334" y="40" width="4" height="4"/><rect x="220" y="52" width="4" height="4"/>
+  </g>
+  <g fill="#0e0724">
+    <rect x="26" y="58" width="4" height="38"/>
+    <path d="M28 58C18 50 12 53 6 47c10 0 16 5 22 9 6-4 12-9 22-9-6 6-12 3-22 11z"/>
+    <rect x="370" y="52" width="4" height="44"/>
+    <path d="M372 52c-10-8-16-5-22-11 10 0 16 5 22 9 6-4 12-9 22-9-6 6-12 3-22 11z"/>
+  </g>
+</svg>
+</div>
+
+<nav>
+  <a href="#home" data-nav="home" class="on">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>
+    Home
+  </a>
+  <a href="#schedule" data-nav="schedule">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+    Schedule
+  </a>
+  <a href="#photos" data-nav="photos">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg>
+    Photos
+  </a>
+  <a href="#speakers" data-nav="speakers">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.5c3 0 5.5 2 5.5 5"/></svg>
+    Speakers
+  </a>
+  <a href="#info" data-nav="info">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+    Info
+  </a>
+</nav>
+
+<script src="app.js"></script>
+</body>
+</html>

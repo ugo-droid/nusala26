@@ -1,0 +1,60 @@
+{
+  "updated": "2026-07-21T17:00:00Z",
+  "donateUrl": "",
+  "announcements": [
+    { "id": 1, "time": "2026-07-21T17:00:00Z", "text": "Welcome to NUSALA 26! Add this app to your home screen to get updates." }
+  ],
+  "venue": {
+    "name": "Embassy Suites by Hilton",
+    "address": "1440 E Imperial Ave, El Segundo, CA 90245",
+    "room": "Barcelona Room",
+    "phone": "310-433-4020",
+    "email": "nnewiusa@yahoo.com"
+  },
+  "days": [
+    { "date": "2026-07-23", "label": "Thursday", "events": [
+      { "id": "t1", "start": "12:00", "end": "19:00", "title": "Arrival of convention participants" },
+      { "id": "t2", "start": "14:00", "end": "18:00", "title": "Registration" },
+      { "id": "t3", "start": "19:00", "end": "21:00", "title": "Welcome reception" },
+      { "id": "t4", "start": "21:00", "end": "22:00", "title": "Executive and delegates meeting" }
+    ]},
+    { "date": "2026-07-24", "label": "Friday", "events": [
+      { "id": "f1", "start": "07:00", "end": "08:30", "title": "Breakfast" },
+      { "id": "f2", "start": "09:30", "end": "10:30", "title": "Opening ceremony" },
+      { "id": "f3", "start": "10:30", "end": "13:00", "title": "Chapter reports", "note": "All chapters" },
+      { "id": "f4", "start": "13:00", "end": "14:00", "title": "Lunch" },
+      { "id": "f5", "start": "14:30", "end": "17:00", "title": "Family tour and exploration of Los Angeles" },
+      { "id": "f6", "start": "18:00", "end": "19:30", "title": "Young adult mixer", "note": "Ages 21–35" },
+      { "id": "f7", "start": "19:30", "end": "20:30", "title": "Dinner" },
+      { "id": "f8", "start": "20:30", "end": "23:00", "title": "Cultural night", "note": "Dr. Chinyelu Izuchukwu · Dr. Blessing Nwosu" }
+    ]},
+    { "date": "2026-07-25", "label": "Saturday", "events": [
+      { "id": "s1", "start": "07:00", "end": "08:30", "title": "Registration" },
+      { "id": "s2", "start": "07:30", "end": "08:30", "title": "Breakfast" },
+      { "id": "s3", "start": "09:00", "end": "11:00", "title": "Session 1: Panel discussion", "note": "Engaging Nnewi business leaders and diaspora executives — Chimezie Metu, Kenny Uba, Dr. Ezinne Onwuatuegwu, Tobenna Mbelu" },
+      { "id": "s4", "start": "11:15", "end": "13:00", "title": "Session 2: Presentations", "note": "Mr. Jacob / Mrs. Madubuko, Chimezie Metu, Mayor Pro Tem Alex Monteiro (City of Hawthorne), Kez. Udezue, Kenny Uba" },
+      { "id": "s5", "start": "13:30", "end": "14:30", "title": "Keynote: Dr. Ike Okwuosa MD", "note": "Relationship forum — building strong families and community bonds" },
+      { "id": "s6", "start": "14:30", "end": "16:00", "title": "Children's activities · NUSA Multi-Purpose Blvd presentation" },
+      { "id": "s7", "start": "16:00", "end": "17:00", "title": "Financial literacy gameshow", "note": "Learn · Play · Win" },
+      { "id": "s8", "start": "17:00", "end": "18:30", "title": "Fundraising event", "note": "Investing in Nnewi's future" },
+      { "id": "s9", "start": "19:00", "end": "21:00", "title": "Election", "note": "Nnewi USA national elections" },
+      { "id": "s10", "start": "19:30", "end": "23:59", "title": "Gala night", "note": "Buffet dinner · cultural performances (Mazi Dozie Okonkwo, moderator Chiazam Mbelu) · awards · raffle draw · dance" }
+    ]},
+    { "date": "2026-07-26", "label": "Sunday", "events": [
+      { "id": "u1", "start": "07:30", "end": "08:30", "title": "Breakfast" },
+      { "id": "u2", "start": "09:00", "end": "10:30", "title": "Thanksgiving / church service" },
+      { "id": "u3", "start": "10:30", "end": "11:00", "title": "Delegates meeting / closing" },
+      { "id": "u4", "start": "13:00", "end": "23:59", "title": "Departures" }
+    ]}
+  ],
+  "speakers": [
+    { "name": "Dr. Ike Okwuosa MD", "role": "Keynote speaker", "bio": "", "photo": "" },
+    { "name": "Chimezie Metu", "role": "Panelist / presenter", "bio": "", "photo": "" },
+    { "name": "Kenny Uba", "role": "Panelist / presenter", "bio": "", "photo": "" },
+    { "name": "Dr. Ezinne Onwuatuegwu", "role": "Panelist", "bio": "", "photo": "" },
+    { "name": "Tobenna Mbelu", "role": "Panelist", "bio": "", "photo": "" },
+    { "name": "Mayor Pro Tem Alex Monteiro", "role": "City of Hawthorne", "bio": "", "photo": "" },
+    { "name": "Mazi Dozie Okonkwo", "role": "Gala night", "bio": "", "photo": "" },
+    { "name": "Chiazam Mbelu", "role": "Gala moderator", "bio": "", "photo": "" }
+  ]
+}

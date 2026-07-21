@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NUSALA 26 — Admin</title>
+<meta name="robots" content="noindex">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { font-size: 17px; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #241452; color: #fff; padding-bottom: 110px; }
+.wrap { max-width: 720px; margin: 0 auto; padding: 16px; }
+h1 { color: #f6b21b; font-size: 1.3rem; padding: 4px 0 12px; }
+h2 { color: #f6b21b; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.5px; margin: 26px 0 8px; }
+.card { background: #fdf9f0; border-radius: 12px; padding: 14px; margin-top: 10px; color: #26215c; }
+input, textarea, select { width: 100%; font-family: inherit; font-size: 1rem; padding: 10px; border: 1.5px solid #c9bfa4; border-radius: 8px; background: #fff; color: #26215c; min-height: 44px; }
+textarea { resize: vertical; min-height: 60px; }
+label { display: block; font-size: 0.8rem; font-weight: 600; color: #5f5e5a; margin: 8px 0 3px; }
+button { font-family: inherit; font-size: 0.95rem; font-weight: 600; border: none; border-radius: 8px; padding: 11px 16px; cursor: pointer; min-height: 44px; }
+.gold { background: #f6b21b; color: #412402; }
+.purple { background: #3b2a75; color: #fff; }
+.danger { background: #fbe9e9; color: #a32d2d; }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.row > * { flex: 1; }
+.row .sm { flex: 0 0 auto; }
+.ev-row { border-bottom: 1px solid #eee3c8; padding: 12px 0; }
+.ev-row:last-child { border-bottom: none; }
+.times { display: flex; gap: 8px; }
+.times input { flex: 1; }
+.chips { display: flex; gap: 8px; margin: 10px 0; }
+.chips button { flex: 1; background: #3b2a75; color: #cfc4f0; border-radius: 22px; }
+.chips button.on { background: #f6b21b; color: #412402; }
+#savebar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(20,10,45,0.95); padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); display: flex; gap: 10px; justify-content: center; }
+#savebar button { flex: 1; max-width: 260px; }
+#status { text-align: center; font-size: 0.85rem; color: #cfc4f0; padding: 8px; min-height: 1.5em; }
+.hidden { display: none !important; }
+small.hint { color: #8a86a8; display: block; margin-top: 6px; font-size: 0.75rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>NUSALA 26 · Admin</h1>
+
+  <div id="login" class="card">
+    <label for="pw">Admin password</label>
+    <input id="pw" type="password" autocomplete="current-password">
+    <div style="margin-top:10px;"><button class="gold" onclick="login()">Sign in</button></div>
+    <small class="hint">Wrong passwords fail on first save — this screen only stores the key on this device.</small>
+  </div>
+
+  <div id="panel" class="hidden">
+
+    <h2>Announcements</h2>
+    <div class="card">
+      <textarea id="new-ann" placeholder="Type an announcement… e.g. Dinner moved to 8 pm"></textarea>
+      <div class="row" style="margin-top:8px;">
+        <button class="purple" onclick="addAnn(false)">Post</button>
+        <button class="gold" onclick="addAnn(true)">Post + notify everyone</button>
+      </div>
+      <div id="ann-list"></div>
+    </div>
+
+    <h2>Schedule</h2>
+    <div class="chips" id="admin-chips"></div>
+    <div class="card" id="ev-list"></div>
+
+    <h2>Speakers</h2>
+    <div class="card" id="sp-list"></div>
+
+    <h2>Photo wall</h2>
+    <div class="card">
+      <div class="row"><button class="purple" onclick="loadPhotos()">Load photos</button></div>
+      <label>Waiting for approval</label>
+      <div id="pending-admin" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:6px;"></div>
+      <label>Live on the wall</label>
+      <div id="photo-admin" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:6px;"></div>
+    </div>
+
+    <h2>Settings</h2>
+    <div class="card">
+      <label for="donate">Donate link (blank hides the Donate button)</label>
+      <input id="donate" type="url" placeholder="https://…">
+    </div>
+
+  </div>
+</div>
+
+<div id="savebar" class="hidden">
+  <button class="gold" onclick="save(false)">Save changes</button>
+  <button class="purple" onclick="save(true)">Save + notify</button>
+</div>
+<div id="status" style="position:fixed;bottom:76px;left:0;right:0;"></div>
+
+<script>
+let DATA = null;
+let day = null;
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const key = () => localStorage.getItem("adminKey") || "";
+
+function login() {
+  localStorage.setItem("adminKey", $("#pw").value.trim());
+  boot();
+}
+
+async function boot() {
+  if (!key()) return;
+  const r = await fetch("/api/data", { cache: "no-store" });
+  if (!r.ok) { setStatus("Couldn't load data"); return; }
+  DATA = await r.json();
+  day = DATA.days[0].date;
+  $("#login").classList.add("hidden");
+  $("#panel").classList.remove("hidden");
+  $("#savebar").classList.remove("hidden");
+  renderAll();
+}
+
+function renderAll() {
+  $("#donate").value = DATA.donateUrl || "";
+  renderAnns(); renderChips(); renderEvents(); renderSpeakers();
+}
+
+function setStatus(t) {
+  $("#status").textContent = t;
+  clearTimeout(window._st); window._st = setTimeout(() => $("#status").textContent = "", 5000);
+}
+
+/* Announcements */
+function renderAnns() {
+  $("#ann-list").innerHTML = (DATA.announcements || []).slice().sort((a,b) => new Date(b.time) - new Date(a.time))
+    .map((a,i) => `<div class="ev-row row">
+      <div>${esc(a.text)}<small class="hint">${new Date(a.time).toLocaleString()}</small></div>
+      <button class="danger sm" onclick="delAnn(${a.id})">Delete</button>
+    </div>`).join("");
+}
+function addAnn(alsoNotify) {
+  const t = $("#new-ann").value.trim();
+  if (!t) return;
+  DATA.announcements.unshift({ id: Date.now(), time: new Date().toISOString(), text: t });
+  $("#new-ann").value = "";
+  renderAnns();
+  save(alsoNotify);
+}
+function delAnn(id) {
+  if (!confirm("Delete this announcement?")) return;
+  DATA.announcements = DATA.announcements.filter(a => a.id !== id);
+  renderAnns();
+}
+
+/* Schedule */
+function renderChips() {
+  $("#admin-chips").innerHTML = DATA.days.map(d =>
+    `<button class="${d.date===day?"on":""}" onclick="day='${d.date}';renderChips();renderEvents()">${esc(d.label.slice(0,3))}</button>`).join("");
+}
+function curDay() { return DATA.days.find(d => d.date === day); }
+function renderEvents() {
+  const d = curDay();
+  $("#ev-list").innerHTML = d.events.map((ev,i) => `
+    <div class="ev-row" data-i="${i}">
+      <div class="times">
+        <input type="time" value="${ev.start}" onchange="upd(${i},'start',this.value)">
+        <input type="time" value="${ev.end}" onchange="upd(${i},'end',this.value)">
+        <button class="danger sm" onclick="delEv(${i})">✕</button>
+      </div>
+      <label>Title</label>
+      <input value="${esc(ev.title)}" onchange="upd(${i},'title',this.value)">
+      <label>Details (optional)</label>
+      <input value="${esc(ev.note || "")}" onchange="upd(${i},'note',this.value)">
+      <label>Location (optional)</label>
+      <input value="${esc(ev.location || "")}" onchange="upd(${i},'location',this.value)">
+    </div>`).join("") +
+    `<div style="margin-top:10px;"><button class="purple" onclick="addEv()">+ Add event to ${esc(d.label)}</button></div>`;
+}
+function upd(i, f, v) { curDay().events[i][f] = v; }
+function delEv(i) {
+  if (!confirm("Delete this event?")) return;
+  curDay().events.splice(i, 1); renderEvents();
+}
+function addEv() {
+  curDay().events.push({ id: "e" + Date.now(), start: "12:00", end: "13:00", title: "New event", note: "", location: "" });
+  renderEvents();
+}
+
+/* Speakers */
+function renderSpeakers() {
+  $("#sp-list").innerHTML = DATA.speakers.map((sp,i) => `
+    <div class="ev-row">
+      <div class="row">
+        <input value="${esc(sp.name)}" placeholder="Name" onchange="usp(${i},'name',this.value)">
+        <button class="danger sm" onclick="delSp(${i})">✕</button>
+      </div>
+      <label>Role</label>
+      <input value="${esc(sp.role || "")}" onchange="usp(${i},'role',this.value)">
+      <label>Bio (optional)</label>
+      <input value="${esc(sp.bio || "")}" onchange="usp(${i},'bio',this.value)">
+      <label>Photo URL (optional)</label>
+      <input value="${esc(sp.photo || "")}" onchange="usp(${i},'photo',this.value)">
+    </div>`).join("") +
+    `<div style="margin-top:10px;"><button class="purple" onclick="addSp()">+ Add person</button></div>`;
+}
+function usp(i, f, v) { DATA.speakers[i][f] = v; }
+function delSp(i) { if (confirm("Remove this person?")) { DATA.speakers.splice(i,1); renderSpeakers(); } }
+function addSp() { DATA.speakers.push({ name: "", role: "", bio: "", photo: "" }); renderSpeakers(); }
+
+/* Photo moderation */
+async function loadPhotos() {
+  const [live, pend] = await Promise.all([
+    fetch("/api/photos", { cache: "no-store" }).then(r => r.json()),
+    fetch("/api/pending", { cache: "no-store", headers: { "x-admin-key": key() } }).then(r => r.ok ? r.json() : { photos: [] }),
+  ]);
+  const tile = (p, extra) => `
+    <div>
+      <img src="/api/photo/${p.id}" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;" loading="lazy">
+      <small class="hint">${esc(p.n || "anonymous")}</small>
+      ${extra}
+      <button class="danger" style="width:100%;margin-top:4px;padding:6px;" onclick="delPhoto('${p.id}')">Delete</button>
+    </div>`;
+  document.querySelector("#pending-admin").innerHTML = pend.photos.map(p =>
+    tile(p, `<button class="gold" style="width:100%;margin-top:4px;padding:6px;" onclick="approvePhoto('${p.id}')">Approve</button>`)
+  ).join("") || '<small class="hint">Nothing waiting.</small>';
+  document.querySelector("#photo-admin").innerHTML = live.photos.map(p => tile(p, "")).join("") || '<small class="hint">No photos yet.</small>';
+}
+async function approvePhoto(id) {
+  await fetch("/api/approve/" + id, { method: "POST", headers: { "x-admin-key": key() } });
+  setStatus("Approved — live on the wall");
+  loadPhotos();
+}
+async function delPhoto(id) {
+  if (!confirm("Delete this photo?")) return;
+  await fetch("/api/photo/" + id, { method: "DELETE", headers: { "x-admin-key": key() } });
+  setStatus("Photo deleted");
+  loadPhotos();
+}
+
+/* Save */
+async function save(alsoNotify) {
+  DATA.donateUrl = $("#donate").value.trim();
+  setStatus("Saving…");
+  const r = await fetch("/api/data", {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-admin-key": key() },
+    body: JSON.stringify(DATA),
+  });
+  if (r.status === 401) { setStatus("Wrong password — sign in again"); localStorage.removeItem("adminKey"); location.reload(); return; }
+  if (!r.ok) { setStatus("Save failed — try again"); return; }
+  const j = await r.json();
+  DATA.updated = j.updated;
+  if (alsoNotify) {
+    setStatus("Saved. Sending notifications…");
+    const latest = (DATA.announcements[0] || {}).text || "Schedule updated";
+    const n = await fetch("/api/notify", {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-admin-key": key() },
+      body: JSON.stringify({ title: "NUSALA 26", body: latest }),
+    });
+    const nj = n.ok ? await n.json() : null;
+    setStatus(nj ? `Saved · notified ${nj.sent} phones (${nj.total} subscribed)` : "Saved · notify failed");
+  } else {
+    setStatus("Saved ✓ — phones update within a minute");
+  }
+}
+
+boot();
+</script>
+</body>
+</html>
