@@ -140,21 +140,22 @@ function renderSpeakers() {
     .join("");
 }
 
+const DEFAULT_FOOTER = "NUSALA 26 · Nnewi USA · Empowering the next generation — our legacy, their future";
+
 function renderInfo() {
   const v = DATA.venue;
+  $("#info-footer").textContent = DATA.footer || DEFAULT_FOOTER;
   const mapUrl = "https://maps.google.com/?q=" + encodeURIComponent(v.address);
   const PIN = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 21s7-5.1 7-11a7 7 0 1 0-14 0c0 5.9 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>';
+  const PHONE = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M4 4h5l2 5-3 2a13 13 0 0 0 5 5l2-3 5 2v5a2 2 0 0 1-2 2A18 18 0 0 1 2 6a2 2 0 0 1 2-2z"/></svg>';
+  const MAIL = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 7l10 7 10-7"/></svg>';
   $("#info-body").innerHTML = `
     <div class="card">
       <h3>${esc(v.name)}</h3>
-      <div class="meta">${esc(v.room)} · main convention room</div>
-      <a class="info-row" href="${mapUrl}" target="_blank" rel="noopener">${PIN}${esc(v.address)}</a>
-      <a class="info-row" href="tel:${esc(v.phone)}">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M4 4h5l2 5-3 2a13 13 0 0 0 5 5l2-3 5 2v5a2 2 0 0 1-2 2A18 18 0 0 1 2 6a2 2 0 0 1 2-2z"/></svg>
-        ${esc(v.phone)}</a>
-      <a class="info-row" href="mailto:${esc(v.email)}">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
-        ${esc(v.email)}</a>
+      ${v.room ? `<div class="meta">${esc(v.room)}</div>` : ""}
+      ${v.address ? `<a class="info-row" href="${mapUrl}" target="_blank" rel="noopener">${PIN}${esc(v.address)}</a>` : ""}
+      ${v.phone ? `<a class="info-row" href="tel:${esc(v.phone)}">${PHONE}${esc(v.phone)}</a>` : ""}
+      ${v.email ? `<a class="info-row" href="mailto:${esc(v.email)}">${MAIL}${esc(v.email)}</a>` : ""}
     </div>` + renderUpdates() + renderSponsors();
 }
 
